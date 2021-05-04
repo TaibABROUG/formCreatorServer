@@ -1,36 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const FormModel = require('../model/forms');
-
+const db = require('../services/db');
 
 router.post('/:idForm', (req, res, next)   => {
   console.log(req.body);
-
-    FormModel.findOne({_id:req.params.idForm} ,(error, response) =>{
-    if(error) {
-        return next(error) ; 
-    } else {
-       let content = response.content 
-       content.push( req.body.form)
-        console.log(content);
-   FormModel.findByIdAndUpdate(req.params.idForm , { content : content},{
-          new: true
-        },(error, data) => {
-          if (error) {
-              return next(error);
-              console.log(error)
-          } else {
-              res.json(data)
-              console.log( data,'intent successfully updated!')
-          }
-      } )
-
+  db.query('INSERT INTO contents (content , idForm) VALUES (?, ?);', [JSON.stringify(req.body.form) ,req.params.idForm ])
+  .then(
+    (resp)=>{
+        res.status(201).json({
+          message: "content created",
+        })
+      console.log(resp);
     }
-})
-
-  
-
+  ) ; 
   });
 
 module.exports = router;

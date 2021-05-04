@@ -1,34 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const FormModel = require('../model/forms');
-
+const db = require('../services/db');
 
 router.post('/', (req, res, next) => {
-  console.log(req.body);
- 
-
-const forms = new FormModel({
-  _id: new mongoose.Types.ObjectId(),
-  name: req.body.form.name,
-  form: JSON.stringify(req.body.form.formItems),
-  content : [] 
-})
-  forms
-    .save()
-    .then((result) => {
-      console.log(result)
+  console.log(typeof JSON.stringify(req.body.form.formItems) );
+  db.query('INSERT INTO forms (name, form) VALUES (?, ?);', [req.body.form.name , JSON.stringify(req.body.form.formItems) ])
+  .then(
+    (resp)=>{
+      console.log(resp);
       res.status(201).json({
         message: "forms created",
       })
+    }
+  )
+  .catch((err) => {
+    console.log(err)
+    res.status(500).json({
+      error: err,
     })
-    .catch((err) => {
-      console.log(err)
-      res.status(500).json({
-        error: err,
-      })
-    })
-
+  }) ; 
 });
 
 module.exports = router;
